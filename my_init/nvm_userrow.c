@@ -23,8 +23,8 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
-
+//#include <xc.h>
+#include <../include/proc/SAMC21/samc21j18a.h>
 /* NVM User Row definitions
  */
 

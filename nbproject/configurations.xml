@@ -61,7 +61,6 @@
       </toolsSet>
       <packs>
         <pack name="SAMC21_DFP" vendor="Microchip" version="3.0.22"/>
-        <pack name="SAMC21_DFP" vendor="Microchip" version="3.0.22"/>
       </packs>
       <compileType>
         <linkerTool>
@@ -88,7 +87,7 @@
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C32>
-        <property key="additional-warnings" value="false"/>
+        <property key="additional-warnings" value="true"/>
         <property key="addresss-attribute-use" value="false"/>
         <property key="enable-app-io" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
@@ -157,7 +156,7 @@
         <property key="fill-flash-options-seq" value=""/>
         <property key="fill-flash-options-what" value="0"/>
         <property key="generate-16-bit-code" value="false"/>
-        <property key="generate-cross-reference-file" value="false"/>
+        <property key="generate-cross-reference-file" value="true"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="heap-size" value=""/>
         <property key="input-libraries" value=""/>
@@ -171,7 +170,7 @@
         <property key="optimization-level" value=""/>
         <property key="preprocessor-macros" value=""/>
         <property key="remove-unused-sections" value="false"/>
-        <property key="report-memory-usage" value="false"/>
+        <property key="report-memory-usage" value="true"/>
         <property key="serial-length" value=""/>
         <property key="serial-origin" value=""/>
         <property key="stack-size" value=""/>

@@ -30,7 +30,6 @@ void OSCCTRL_init(void) {
 	/* OSC48M (internal 48MHz oscillator) is running at 4 MHz */
 	
 	// select divider 1 for full 48 MHz
-	OSCCTRL->OSC48MDIV.reg = 0x0000;
-	while(OSCCTRL->OSC48MSYNCBUSY.bit.OSC48MDIV);
-	
+    OSCCTRL_REGS->OSCCTRL_OSC48MDIV = OSCCTRL_OSC48MDIV_DIV_DIV1;
+	while(OSCCTRL_REGS->OSCCTRL_OSC48MSYNCBUSY);	
 }

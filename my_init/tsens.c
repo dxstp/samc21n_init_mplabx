@@ -23,7 +23,11 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
+#include <xc.h>
+typedef volatile       uint8_t  RoReg8;  /**< Read only  8-bit register (volatile const unsigned int) */
+#define NVMCTRL_TEMP_LOG              (0x00806030) /**< \brief (NVMCTRL) TEMP_LOG Base Address */
+#include <../include/proc/SAMC21/instance/tsens.h>
+#include <../include/proc/SAMC21/component/nvmctrl.h>
 #include "tsens.h"
 
 // configure damping of the measurement
@@ -35,56 +39,56 @@ static int32_t convert_signed_24_bit(int32_t value);
 
 void TSENS_init(void) {
 	// unmask TSENS in MCLK to enable clock to user interface
-	MCLK->APBAMASK.reg |= MCLK_APBAMASK_TSENS;
+	MCLK_REGS->MCLK_APBAMASK |= MCLK_APBAMASK_TSENS(1);
 	 
 	// connect GLCK0 with TSENS module (core clock)
-	GCLK->PCHCTRL[TSENS_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0 | GCLK_PCHCTRL_CHEN;
+	GCLK_REGS->GCLK_PCHCTRL[TSENS_GCLK_ID] = GCLK_PCHCTRL_GEN_GCLK0 | GCLK_PCHCTRL_CHEN(1);
 	 
 	// do a software reset of the module (write-synchronized)
-	TSENS->CTRLA.reg = TSENS_CTRLA_SWRST;
-	while (TSENS->SYNCBUSY.bit.SWRST);
+	TSENS_REGS->TSENS_CTRLA = TSENS_CTRLA_SWRST(1);
+	while (TSENS_REGS->TSENS_SYNCBUSY & TSENS_SYNCBUSY_SWRST(1));
 	 
 	// load factory calibration values into TSENS registers
 	// TSENS is calibrated for usage with undivided OSC48M as GCLK source
-	TSENS->GAIN.reg = 
+	TSENS_REGS->TSENS_GAIN = 
 		((*(uint32_t *) TSENS_FUSES_GAIN_0_ADDR & TSENS_FUSES_GAIN_0_Msk) >> TSENS_FUSES_GAIN_0_Pos) |
 		((*(uint32_t *) TSENS_FUSES_GAIN_1_ADDR & TSENS_FUSES_GAIN_1_Msk) >> TSENS_FUSES_GAIN_1_Pos);
-	TSENS->OFFSET.reg =
+	TSENS_REGS->TSENS_OFFSET =
 		((*(uint32_t *) TSENS_FUSES_OFFSET_ADDR & TSENS_FUSES_OFFSET_Msk) >> TSENS_FUSES_OFFSET_Pos);
-	TSENS->CAL.reg =
+	TSENS_REGS->TSENS_CAL =
 		TSENS_CAL_FCAL((*(uint32_t *) TSENS_FUSES_FCAL_ADDR & TSENS_FUSES_FCAL_Msk) >> TSENS_FUSES_FCAL_Pos) |
 		TSENS_CAL_TCAL((*(uint32_t *) TSENS_FUSES_TCAL_ADDR & TSENS_FUSES_TCAL_Msk) >> TSENS_FUSES_TCAL_Pos);
 	
 	// configure TSENS to run in free running mode
-	TSENS->CTRLC.reg |= TSENS_CTRLC_FREERUN;
+	TSENS_REGS->TSENS_CTRLC |= TSENS_CTRLC_FREERUN(1);
 	
 	// enable TSENS
-	TSENS->CTRLA.reg |= TSENS_CTRLA_ENABLE;
-	while(TSENS->SYNCBUSY.bit.ENABLE);
+	TSENS_REGS->TSENS_CTRLA |= TSENS_CTRLA_ENABLE(1);
+	while(TSENS_REGS->TSENS_SYNCBUSY & TSENS_SYNCBUSY_ENABLE(1));
 	 
 	// start measurement
-	TSENS->CTRLB.reg = TSENS_CTRLB_START;
+	TSENS_REGS->TSENS_CTRLB = TSENS_CTRLB_START(1);
 	
 	// get first measurement to preload filter
-	while(!TSENS->INTFLAG.bit.RESRDY);
-	tsensFilterSum = convert_signed_24_bit(TSENS->VALUE.reg) * tsensFilterStrength;
-	tsensTemperatureFiltered = convert_signed_24_bit(TSENS->VALUE.reg);
+	while(!(TSENS_REGS->TSENS_INTFLAG & TSENS_INTFLAG_RESRDY(1)));
+	tsensFilterSum = convert_signed_24_bit(TSENS_REGS->TSENS_VALUE) * tsensFilterStrength;
+	tsensTemperatureFiltered = convert_signed_24_bit(TSENS_REGS->TSENS_VALUE);
 	
 	// enable TSENS interrupts
-	TSENS->INTFLAG.reg = TSENS_INTFLAG_RESRDY;
-	TSENS->INTENSET.reg = TSENS_INTFLAG_RESRDY;
+	TSENS_REGS->TSENS_INTFLAG = TSENS_INTFLAG_RESRDY(1);
+	TSENS_REGS->TSENS_INTENSET = TSENS_INTFLAG_RESRDY(1);
 	 
 }
 
 void TSENS_Handler() {
-	if(TSENS->INTFLAG.bit.RESRDY) {
+	if(TSENS_REGS->TSENS_INTFLAG & TSENS_INTFLAG_RESRDY(1)) {
 		// moving exponential average to get stable result
 		tsensFilterSum -= tsensFilterSum / tsensFilterStrength;
-		tsensFilterSum += convert_signed_24_bit(TSENS->VALUE.reg);
+		tsensFilterSum += convert_signed_24_bit(TSENS_REGS->TSENS_VALUE);
 		tsensTemperatureFiltered = tsensFilterSum / tsensFilterStrength;
 		
 		// clear interrupt
-		TSENS->INTFLAG.reg = TSENS_INTFLAG_RESRDY;
+		TSENS_REGS->TSENS_INTFLAG = TSENS_INTFLAG_RESRDY(1);
 	}
 }
 

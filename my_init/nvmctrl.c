@@ -23,11 +23,11 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
+#include <xc.h>
 #include "nvmctrl.h"
 
 void NVMCTRL_init(void) {
 	// see table Table 48-20 on page 1231 of datasheet for required wait states.
 	// set wait states to 3 for maximum clock (48 MHz)
-	NVMCTRL->CTRLB.bit.RWS = 3;
+	NVMCTRL_REGS->NVMCTRL_CTRLB |= NVMCTRL_CTRLB_RWS(3); 
 }

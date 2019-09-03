@@ -34,5 +34,5 @@ void SUPC_init(void) {
 	
 	/* Various bits in the INTFLAG register can be set to one at startup.
 	   This will ensure that these bits are cleared */
-	SUPC->INTFLAG.reg = SUPC_INTFLAG_BODVDDRDY | SUPC_INTFLAG_BODVDDDET;
+	SUPC_REGS->SUPC_INTFLAG = SUPC_INTFLAG_BODVDDRDY(1) | SUPC_INTFLAG_BODVDDDET(1);
 }

@@ -1,6 +1,6 @@
 // DOM-IGNORE-BEGIN
 /*
-    (c) 2018 Microchip Technology Inc. and its subsidiaries. 
+    (c) 2019 Microchip Technology Inc. and its subsidiaries. 
     
     Subject to your compliance with these terms, you may use Microchip software and any 
     derivatives exclusively with Microchip products. It is your responsibility to comply with third party 
@@ -23,7 +23,7 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
+#include <xc.h>
 #include "gclk.h"
 
 /**
@@ -32,14 +32,13 @@
 void GCLK_init(void) {
 	// GCLK0: source is OSC48M, no divisor
 	// for main clock
-	GCLK->GENCTRL[0].reg =
-		  GCLK_GENCTRL_GENEN
+	GCLK_REGS->GCLK_GENCTRL[0] =
+		  GCLK_GENCTRL_GENEN(1)
 		| GCLK_GENCTRL_SRC_OSC48M;
 		
-	GCLK->GENCTRL[1].reg =
-		GCLK_GENCTRL_GENEN
+	GCLK_REGS->GCLK_GENCTRL[1] =
+		GCLK_GENCTRL_GENEN(1)
 		| GCLK_GENCTRL_SRC_OSC48M
-		| GCLK_GENCTRL_OE
+		| GCLK_GENCTRL_OE(1)
 		| GCLK_GENCTRL_DIV(1000);
-
 }

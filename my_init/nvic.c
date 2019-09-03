@@ -27,8 +27,8 @@
 #include "nvic.h"
 
 void NVIC_init(void) {	
-	NVIC_SetPriority(SYSTEM_IRQn, 0);
-	NVIC_EnableIRQ(SYSTEM_IRQn);
+	NVIC_SetPriority(SUPC_IRQn, 0);
+	NVIC_EnableIRQ(SUPC_IRQn);
 	
 	NVIC_SetPriority(TSENS_IRQn, 3);
 	NVIC_EnableIRQ(TSENS_IRQn);	
