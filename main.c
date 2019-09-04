@@ -51,14 +51,13 @@ int main(void) {
 	
 	printf("Hello C21N World!\r\n");
 	
-
-    double temp;
+    int32_t temp;
     while (1) {	
 		
         PORT_REGS->GROUP[2].PORT_OUTTGL = (1 << 5);
 		delay_ms(1000);
         temp = getInternalTemperatureFiltered();
-		printf("TSENS Temperature: %.2f\r\n", temp);
+		printf("TSENS Temperature: %d\r\n", temp);
     }
 }
 

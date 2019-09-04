@@ -27,6 +27,6 @@
 #define TSENS_H_
 
 void TSENS_init(void);
-double getInternalTemperatureFiltered(void);
+int32_t getInternalTemperatureFiltered(void);
 
 #endif /* TSENS_H_ */

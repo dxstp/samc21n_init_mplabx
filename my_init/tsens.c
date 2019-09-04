@@ -75,8 +75,8 @@ void TSENS_init(void) {
 	tsensTemperatureFiltered = convert_signed_24_bit(TSENS_REGS->TSENS_VALUE);
 	
 	// enable TSENS interrupts
-//	TSENS_REGS->TSENS_INTFLAG = TSENS_INTFLAG_RESRDY(1);
-//	TSENS_REGS->TSENS_INTENSET = TSENS_INTFLAG_RESRDY(1);
+	TSENS_REGS->TSENS_INTFLAG = TSENS_INTFLAG_RESRDY(1);
+	TSENS_REGS->TSENS_INTENSET = TSENS_INTFLAG_RESRDY(1);
 	 
 }
 
@@ -92,8 +92,8 @@ void TSENS_Handler() {
 	}
 }
 
-double getInternalTemperatureFiltered(void) {
-	return (double) tsensTemperatureFiltered / 100.0;
+int32_t getInternalTemperatureFiltered(void) {
+	return tsensTemperatureFiltered;
 }
 
 static int32_t convert_signed_24_bit(int32_t value) {
