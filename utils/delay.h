@@ -23,46 +23,13 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
-#include <stdio.h>
-#include "my_init/supc.h"
-#include "my_init/nvmctrl.h"
-#include "my_init/oscctrl.h"
-#include "my_init/nvic.h"
-#include "my_init/gclk.h"
-#include "my_init/port.h"
-#include "my_init/tc.h"
-#include "my_init/tsens.h"
-#include "my_init/sercom.h"
-#include "utils/print.h"
-#include "utils/delay.h"
+#ifndef DELAY_H_
+#define DELAY_H_
 
-int main(void) {
-	SUPC_init();
-	NVMCTRL_init();
-	OSCCTRL_init();
-	NVIC_init();
-	GCLK_init();
-	PORT_init();
-	TC_init();
-	TSENS_init();
-	SERCOM4_init();
-	print_init();
-	
-	printf("Hello C21N World!\r\n");
-	
 
-    while (1) {	
-		PORT_REGS->GROUP[2].PORT_OUTTGL = (1 << 5);
-		delay_ms(1000);
-		//printf("TSENS Temperature: %.2f\r\n", getInternalTemperatureFiltered());
-    }
-}
+#define CONF_CPU_FREQUENCY 48000000
 
-void SYSTEM_Handler() {
-	while(1);
-}
+void delay_ms(const uint16_t ms);
+void delay_cycles(const uint32_t cycles);
 
-void HardFault_Handler() {
-    while(1);
-}
+#endif /* DELAY_H_ */
