@@ -1,6 +1,6 @@
 // DOM-IGNORE-BEGIN
 /*
-    (c) 2018 Microchip Technology Inc. and its subsidiaries. 
+    (c) 2019 Microchip Technology Inc. and its subsidiaries. 
     
     Subject to your compliance with these terms, you may use Microchip software and any 
     derivatives exclusively with Microchip products. It is your responsibility to comply with third party 
@@ -23,50 +23,31 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
+#include <xc.h>
 #include <stdio.h>
-#include "my_init/supc.h"
-#include "my_init/nvmctrl.h"
-#include "my_init/oscctrl.h"
-#include "my_init/nvic.h"
-#include "my_init/gclk.h"
-#include "my_init/port.h"
-#include "my_init/tc.h"
-#include "my_init/tsens.h"
-#include "my_init/sercom.h"
-#include "my_init/dsu.h"
-#include "utils/print.h"
-#include "utils/delay.h"
+#include "dsu.h"
 
-int main(void) {
-	SUPC_init();
-	NVMCTRL_init();
-	OSCCTRL_init();
-	NVIC_init();
-	GCLK_init();
-	PORT_init();
-	TC_init();
-	TSENS_init();
-	SERCOM4_init();
-	print_init();
-    DSU_init();
-	
-	printf("Hello C21N World!\r\n");
-	
-    int32_t temp;
-    while (1) {	
-		
-        PORT_REGS->GROUP[2].PORT_OUTTGL = (1 << 5);
-		delay_ms(1000);
-        temp = getInternalTemperatureFiltered();
-		printf("TSENS Temperature: %d\r\n", temp);
+typedef union {
+    uint32_t reg;
+    struct {
+        uint32_t devsel:8;
+        uint32_t revision:4;
+        uint32_t die:4;
+        uint32_t series:6;
+        uint32_t reserved_0:1;
+        uint32_t family:5;
+        uint32_t processor:4;
+    };
+} dsu_did_t;
+
+dsu_did_t did_info;
+
+void DSU_init(void) {
+    did_info.reg = *(uint32_t *) (DSU_BASE_ADDRESS + DSU_DID_REG_OFST);
+    if(did_info.devsel == 0x20) {
+        printf("I am an ATSAMC21N18A.\n");
     }
-}
-
-void SYSTEM_Handler() {
-	while(1);
-}
-
-void HardFault_Handler() {
-    while(1);
+    if(did_info.revision == 0x04) {
+        printf("My die revision is E.\n");
+    }
 }

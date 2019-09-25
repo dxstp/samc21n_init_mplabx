@@ -1,6 +1,6 @@
 // DOM-IGNORE-BEGIN
 /*
-    (c) 2018 Microchip Technology Inc. and its subsidiaries. 
+    (c) 2019 Microchip Technology Inc. and its subsidiaries. 
     
     Subject to your compliance with these terms, you may use Microchip software and any 
     derivatives exclusively with Microchip products. It is your responsibility to comply with third party 
@@ -22,51 +22,10 @@
     SOFTWARE.
  */
 // DOM-IGNORE-END
+#ifndef DSU_H
+#define	DSU_H
 
-#include <sam.h>
-#include <stdio.h>
-#include "my_init/supc.h"
-#include "my_init/nvmctrl.h"
-#include "my_init/oscctrl.h"
-#include "my_init/nvic.h"
-#include "my_init/gclk.h"
-#include "my_init/port.h"
-#include "my_init/tc.h"
-#include "my_init/tsens.h"
-#include "my_init/sercom.h"
-#include "my_init/dsu.h"
-#include "utils/print.h"
-#include "utils/delay.h"
+void DSU_init(void);
 
-int main(void) {
-	SUPC_init();
-	NVMCTRL_init();
-	OSCCTRL_init();
-	NVIC_init();
-	GCLK_init();
-	PORT_init();
-	TC_init();
-	TSENS_init();
-	SERCOM4_init();
-	print_init();
-    DSU_init();
-	
-	printf("Hello C21N World!\r\n");
-	
-    int32_t temp;
-    while (1) {	
-		
-        PORT_REGS->GROUP[2].PORT_OUTTGL = (1 << 5);
-		delay_ms(1000);
-        temp = getInternalTemperatureFiltered();
-		printf("TSENS Temperature: %d\r\n", temp);
-    }
-}
+#endif	/* DSU_H */
 
-void SYSTEM_Handler() {
-	while(1);
-}
-
-void HardFault_Handler() {
-    while(1);
-}
