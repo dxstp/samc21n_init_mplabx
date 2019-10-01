@@ -23,7 +23,7 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
+#include <xc.h>
 #include <stdio.h>
 #include "my_init/supc.h"
 #include "my_init/nvmctrl.h"
@@ -38,6 +38,9 @@
 #include "my_init/dsu.h"
 #include "utils/print.h"
 #include "utils/delay.h"
+
+int32_t temp;
+uint16_t adc_result[32];
 
 int main(void) {
 	SUPC_init();
@@ -55,13 +58,15 @@ int main(void) {
 	
 	printf("Hello C21N World!\r\n");
 	
-    int32_t temp;
     while (1) {	
 		
         PORT_REGS->GROUP[2].PORT_OUTTGL = (1 << 5);
 		delay_ms(1000);
         temp = getInternalTemperatureFiltered();
 		printf("TSENS Temperature: %d\r\n", temp);
+        
+        ADC1_REGS->ADC_SWTRIG = 1;
+        while(ADC1_REGS->ADC_SEQSTATUS & 0x80);
     }
 }
 
@@ -81,22 +86,15 @@ void ADC0_Handler() {
     if(ADC0_REGS->ADC_INTFLAG & ADC_INTFLAG_OVERRUN(1)) {
         ADC0_REGS->ADC_INTFLAG = ADC_INTFLAG_OVERRUN(1);
     }
-    
-    if(ADC0_REGS->ADC_INTFLAG & ADC_INTFLAG_WINMON(1)) {
-        ADC0_REGS->ADC_INTFLAG = ADC_INTFLAG_WINMON(1);
-    }
 }   
 
 void ADC1_Handler() {
     if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY(1)) {
         ADC1_REGS->ADC_INTFLAG = ADC_INTFLAG_RESRDY(1);
+        adc_result[(ADC1_REGS->ADC_SEQSTATUS) & 0x1F] = ADC1_REGS->ADC_RESULT;
     }
     
     if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_OVERRUN(1)) {
         ADC1_REGS->ADC_INTFLAG = ADC_INTFLAG_OVERRUN(1);
-    }
-    
-    if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_WINMON(1)) {
-        ADC1_REGS->ADC_INTFLAG = ADC_INTFLAG_WINMON(1);
     }
 }

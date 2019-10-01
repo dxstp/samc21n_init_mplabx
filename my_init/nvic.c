@@ -32,5 +32,11 @@ void NVIC_init(void) {
 	
 	NVIC_SetPriority(TSENS_IRQn, 3);
 	NVIC_EnableIRQ(TSENS_IRQn);	
+    
+    NVIC_SetPriority(ADC0_IRQn, 3);
+	NVIC_EnableIRQ(ADC0_IRQn);	
+    
+    NVIC_SetPriority(ADC1_IRQn, 3);
+	NVIC_EnableIRQ(ADC1_IRQn);	
 
 }

@@ -23,7 +23,7 @@
  */
 // DOM-IGNORE-END
 
-#include <xc.h>
+#include <sam.h>
 #include <proc/SAMC21/component/adc.h>
 #include "adc.h"
 
@@ -35,10 +35,10 @@
 
 void ADC_init(void) {
     // connect clocks to ADC0 and ADC1
-    MCLK_REGS->MCLK_APBCMASK = MCLK_APBCMASK_ADC0(1);
-    MCLK_REGS->MCLK_APBCMASK = MCLK_APBCMASK_ADC1(1);
-	GCLK_REGS->GCLK_PCHCTRL[ADC0_GCLK_ID] = GCLK_PCHCTRL_GEN_GCLK0 | GCLK_PCHCTRL_CHEN(1);
-    GCLK_REGS->GCLK_PCHCTRL[ADC1_GCLK_ID] = GCLK_PCHCTRL_GEN_GCLK0 | GCLK_PCHCTRL_CHEN(1);
+    MCLK_REGS->MCLK_APBCMASK |= MCLK_APBCMASK_ADC0(1);
+    MCLK_REGS->MCLK_APBCMASK |= MCLK_APBCMASK_ADC1(1);
+	GCLK_REGS->GCLK_PCHCTRL[ADC0_GCLK_ID] = GCLK_PCHCTRL_GEN_GCLK2 | GCLK_PCHCTRL_CHEN(1);
+    GCLK_REGS->GCLK_PCHCTRL[ADC1_GCLK_ID] = GCLK_PCHCTRL_GEN_GCLK2 | GCLK_PCHCTRL_CHEN(1);
 	
 	// do a software reset of the modules (write-synchronized)
 	ADC0_REGS->ADC_CTRLA = ADC_CTRLA_SWRST(1);
@@ -62,45 +62,52 @@ void ADC_init(void) {
     // 12 bit conversion
     // tsamplehold >= 512 ns    
     ADC0_REGS->ADC_SAMPCTRL = 
-        ADC_SAMPCTRL_SAMPLEN(23);
+        ADC_SAMPCTRL_SAMPLEN(0) |
+        ADC_SAMPCTRL_OFFCOMP(1);
+    while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_SAMPCTRL(1));
     ADC0_REGS->ADC_CTRLB =
         ADC_CTRLB_PRESCALER(ADC_CTRLB_PRESCALER_DIV2_Val);
     ADC1_REGS->ADC_SAMPCTRL = 
-        ADC_SAMPCTRL_SAMPLEN(23);
+        ADC_SAMPCTRL_SAMPLEN(0) |
+        ADC_SAMPCTRL_OFFCOMP(1);
+    while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_SAMPCTRL(1));
     ADC1_REGS->ADC_CTRLB =
         ADC_CTRLB_PRESCALER(ADC_CTRLB_PRESCALER_DIV2_Val);
     
     // configure reference for ADC
     ADC0_REGS->ADC_REFCTRL =
-        ADC_REFCTRL_REFCOMP(0) |
+        ADC_REFCTRL_REFCOMP(1) |
         ADC_REFCTRL_REFSEL(ADC_REFCTRL_REFSEL_INTREF_Val);
     ADC1_REGS->ADC_REFCTRL =
-        ADC_REFCTRL_REFCOMP(0) |
+        ADC_REFCTRL_REFCOMP(1) |
         ADC_REFCTRL_REFSEL(ADC_REFCTRL_REFSEL_INTREF_Val);
     
     // configure negative ADC input
     // differential measurement between AIN 2 and 3
     ADC0_REGS->ADC_INPUTCTRL =
         ADC_INPUTCTRL_MUXNEG(ADC_INPUTCTRL_MUXNEG_AIN2_Val) |
-        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN3);
+        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN3_Val);
+    while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_INPUTCTRL(1));
     // single-ended measurement
     // 0x18 = internal ground
     ADC1_REGS->ADC_INPUTCTRL =
         ADC_INPUTCTRL_MUXNEG(0x18) |
-        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN4);
+        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN0);
+    while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_INPUTCTRL(1));
     
     // configure ADC mode
     ADC0_REGS->ADC_CTRLC =
-        ADC_CTRLC_DUALSEL(ADC_CTRLC_DUALSEL_INTERLEAVE_Val) |
+        ADC_CTRLC_DUALSEL(ADC_CTRLC_DUALSEL_BOTH_Val) |
         ADC_CTRLC_WINMODE(ADC_CTRLC_WINMODE_DISABLE_Val) |
         ADC_CTRLC_R2R(0) |
         ADC_CTRLC_RESSEL(ADC_CTRLC_RESSEL_12BIT_Val) |
         ADC_CTRLC_CORREN(0) |
         ADC_CTRLC_FREERUN(0) |
         ADC_CTRLC_LEFTADJ(0) |
-        ADC_CTRLC_DIFFMODE(0);
+        ADC_CTRLC_DIFFMODE(1);
+    while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_CTRLC(1));
     ADC1_REGS->ADC_CTRLC =
-        ADC_CTRLC_DUALSEL(ADC_CTRLC_DUALSEL_INTERLEAVE_Val) |
+        ADC_CTRLC_DUALSEL(ADC_CTRLC_DUALSEL_BOTH_Val) |
         ADC_CTRLC_WINMODE(ADC_CTRLC_WINMODE_DISABLE_Val) |
         ADC_CTRLC_R2R(0) |
         ADC_CTRLC_RESSEL(ADC_CTRLC_RESSEL_12BIT_Val) |
@@ -108,30 +115,45 @@ void ADC_init(void) {
         ADC_CTRLC_FREERUN(0) |
         ADC_CTRLC_LEFTADJ(0) |
         ADC_CTRLC_DIFFMODE(0);
+    while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_CTRLC(1));
     
     // configure averaging
     ADC0_REGS->ADC_AVGCTRL =
         ADC_AVGCTRL_ADJRES(0) |
         ADC_AVGCTRL_SAMPLENUM(ADC_AVGCTRL_SAMPLENUM_1);
+    while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_AVGCTRL(1));
     ADC1_REGS->ADC_AVGCTRL =
         ADC_AVGCTRL_ADJRES(0) |
         ADC_AVGCTRL_SAMPLENUM(ADC_AVGCTRL_SAMPLENUM_1);
+    while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_AVGCTRL(1));
     
     // configure automatic sequencing
-    // sequential measurement for AIN 4, 5, 8, 9, 10, 11
-    ADC1_REGS->ADC_SEQCTRL =
-        ADC_SEQCTRL_SEQEN(
-        (1 <<  4) |
-        (1 <<  5) |
-        (1 <<  8) |
-        (1 <<  9) |
-        (1 << 10) |
-        (1 << 11));
+    // sequential measurement for AIN 8, 9, 10, 11
+    ADC1_REGS->ADC_SEQCTRL = 0xFFFFFFFF;
+//        ADC_SEQCTRL_SEQEN(
+//        (1 <<  0) |
+//        (1 <<  1) |
+//        (1 <<  2) |
+//        (1 <<  4) |
+//        (1 <<  5) |
+//        (1 <<  6) |
+//        (1 <<  7) |
+//        (1 <<  8) |
+//        (1 << 10) |
+//        (1 << 11));
         
     // enable interrupts for result
-    ADC0_REGS->ADC_INTENSET = ADC_INTENSET_RESRDY(1);
-    ADC1_REGS->ADC_INTENSET = ADC_INTENSET_RESRDY(1);
+    ADC0_REGS->ADC_INTENSET = 
+        ADC_INTENSET_RESRDY(1) |
+        ADC_INTENSET_OVERRUN(1);
+    ADC1_REGS->ADC_INTENSET = 
+        ADC_INTENSET_RESRDY(1) |
+        ADC_INTENSET_OVERRUN(1);
 
-    
+    // enable ADC0 and ADC1
+    ADC0_REGS->ADC_CTRLA = ADC_CTRLA_ENABLE(1);
+	while (ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_ENABLE(1));
+    ADC1_REGS->ADC_CTRLA = ADC_CTRLA_ENABLE(1);
+	while (ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_ENABLE(1));
     
 }
