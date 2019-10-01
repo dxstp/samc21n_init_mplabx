@@ -34,6 +34,7 @@
 #include "my_init/tc.h"
 #include "my_init/tsens.h"
 #include "my_init/sercom.h"
+#include "my_init/adc.h"
 #include "my_init/dsu.h"
 #include "utils/print.h"
 #include "utils/delay.h"
@@ -48,6 +49,7 @@ int main(void) {
 	TC_init();
 	TSENS_init();
 	SERCOM4_init();
+    ADC_init();
 	print_init();
     DSU_init();
 	
@@ -69,4 +71,32 @@ void SYSTEM_Handler() {
 
 void HardFault_Handler() {
     while(1);
+}
+
+void ADC0_Handler() {
+    if(ADC0_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY(1)) {
+        ADC0_REGS->ADC_INTFLAG = ADC_INTFLAG_RESRDY(1);
+    }
+    
+    if(ADC0_REGS->ADC_INTFLAG & ADC_INTFLAG_OVERRUN(1)) {
+        ADC0_REGS->ADC_INTFLAG = ADC_INTFLAG_OVERRUN(1);
+    }
+    
+    if(ADC0_REGS->ADC_INTFLAG & ADC_INTFLAG_WINMON(1)) {
+        ADC0_REGS->ADC_INTFLAG = ADC_INTFLAG_WINMON(1);
+    }
+}   
+
+void ADC1_Handler() {
+    if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY(1)) {
+        ADC1_REGS->ADC_INTFLAG = ADC_INTFLAG_RESRDY(1);
+    }
+    
+    if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_OVERRUN(1)) {
+        ADC1_REGS->ADC_INTFLAG = ADC_INTFLAG_OVERRUN(1);
+    }
+    
+    if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_WINMON(1)) {
+        ADC1_REGS->ADC_INTFLAG = ADC_INTFLAG_WINMON(1);
+    }
 }

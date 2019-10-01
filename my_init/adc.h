@@ -23,21 +23,10 @@
  */
 // DOM-IGNORE-END
 
-#include <xc.h>
-#include "supc.h"
+#ifndef ADC_H
+#define	ADC_H
 
-/** 
- * init the SUPC module
- */
-void SUPC_init(void) {
-	/* BOD33 Level and Action already set by fuses config in nvm_userrow.c */
-	
-	/* Various bits in the INTFLAG register can be set to one at startup.
-	   This will ensure that these bits are cleared */
-	SUPC_REGS->SUPC_INTFLAG = SUPC_INTFLAG_BODVDDRDY(1) | SUPC_INTFLAG_BODVDDDET(1);
-    
-    // Configure and enable internal reference
-    SUPC_REGS->SUPC_VREF =
-        SUPC_VREF_SEL(SUPC_VREF_SEL_1V024_Val) |
-        SUPC_VREF_VREFOE(1);
-}
+void ADC_init(void);
+
+#endif	/* ADC_H */
+
