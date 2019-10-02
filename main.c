@@ -40,7 +40,7 @@
 #include "utils/delay.h"
 
 int32_t temp;
-uint16_t adc_result[32];
+volatile uint16_t adc_result[32];
 
 int main(void) {
 	SUPC_init();
@@ -57,7 +57,10 @@ int main(void) {
     DSU_init();
 	
 	printf("Hello C21N World!\r\n");
-	
+    
+    for (int i = 0; i < 32; i++)
+        adc_result[i] = 0x1234;
+    
     while (1) {	
 		
         PORT_REGS->GROUP[2].PORT_OUTTGL = (1 << 5);
@@ -65,6 +68,10 @@ int main(void) {
         temp = getInternalTemperatureFiltered();
 		printf("TSENS Temperature: %d\r\n", temp);
         
+       
+        
+        printf("%04x %04x %04x %04x\r\n", adc_result[8], adc_result[9], adc_result[10], adc_result[11]);
+
         ADC1_REGS->ADC_SEQCTRL = (1<<8) | (1<<9) | (1<<10) | (1<<11);
         ADC1_REGS->ADC_SWTRIG = 1;
         while(ADC1_REGS->ADC_SEQSTATUS & 0x80);

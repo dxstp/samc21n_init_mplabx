@@ -14,8 +14,8 @@
         <itemPath>my_init/supc.h</itemPath>
         <itemPath>my_init/tc.h</itemPath>
         <itemPath>my_init/tsens.h</itemPath>
-        <itemPath>../../analysis/samc21n_tc_io_err/my_init/dsu.h</itemPath>
         <itemPath>my_init/adc.h</itemPath>
+        <itemPath>my_init/dsu.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="utils" projectFiles="true">
         <itemPath>utils/print.h</itemPath>
@@ -40,8 +40,8 @@
         <itemPath>my_init/supc.c</itemPath>
         <itemPath>my_init/tc.c</itemPath>
         <itemPath>my_init/tsens.c</itemPath>
-        <itemPath>../../analysis/samc21n_tc_io_err/my_init/dsu.c</itemPath>
         <itemPath>my_init/adc.c</itemPath>
+        <itemPath>my_init/dsu.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="utils" projectFiles="true">
         <itemPath>utils/print.c</itemPath>
@@ -58,7 +58,6 @@
   <sourceRootList>
     <Elem>my_init</Elem>
     <Elem>utils</Elem>
-    <Elem>../../analysis/samc21n_tc_io_err/my_init</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
