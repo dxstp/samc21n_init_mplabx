@@ -85,14 +85,14 @@ void ADC_init(void) {
     // configure negative ADC input
     // differential measurement between AIN 2 and 3
     ADC0_REGS->ADC_INPUTCTRL =
-        ADC_INPUTCTRL_MUXNEG(ADC_INPUTCTRL_MUXNEG_AIN2_Val) |
-        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN3_Val);
+        ADC_INPUTCTRL_MUXNEG(ADC_INPUTCTRL_MUXNEG_AIN4_Val) |
+        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN5_Val);
     while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_INPUTCTRL(1));
     // single-ended measurement
     // 0x18 = internal ground
     ADC1_REGS->ADC_INPUTCTRL =
         ADC_INPUTCTRL_MUXNEG(0x18) |
-        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN0);
+        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN8);
     while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_INPUTCTRL(1));
     
     // configure ADC mode
@@ -104,7 +104,7 @@ void ADC_init(void) {
         ADC_CTRLC_CORREN(0) |
         ADC_CTRLC_FREERUN(0) |
         ADC_CTRLC_LEFTADJ(0) |
-        ADC_CTRLC_DIFFMODE(1);
+        ADC_CTRLC_DIFFMODE(0);
     while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_CTRLC(1));
     ADC1_REGS->ADC_CTRLC =
         ADC_CTRLC_DUALSEL(ADC_CTRLC_DUALSEL_BOTH_Val) |
@@ -114,7 +114,7 @@ void ADC_init(void) {
         ADC_CTRLC_CORREN(0) |
         ADC_CTRLC_FREERUN(0) |
         ADC_CTRLC_LEFTADJ(0) |
-        ADC_CTRLC_DIFFMODE(0);
+        ADC_CTRLC_DIFFMODE(1);
     while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_CTRLC(1));
     
     // configure averaging
@@ -129,7 +129,7 @@ void ADC_init(void) {
     
     // configure automatic sequencing
     // sequential measurement for AIN 8, 9, 10, 11
-    ADC1_REGS->ADC_SEQCTRL = (1<<8) | (1<<9) | (1<<10) | (1<<11);
+    ADC0_REGS->ADC_SEQCTRL = (1<<8) | (1<<9) | (1<<10) | (1<<11);
         
     // enable interrupts for result
     ADC0_REGS->ADC_INTENSET = 

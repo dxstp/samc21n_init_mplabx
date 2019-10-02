@@ -72,9 +72,9 @@ int main(void) {
         
         printf("%04x %04x %04x %04x\r\n", adc_result[8], adc_result[9], adc_result[10], adc_result[11]);
 
-        ADC1_REGS->ADC_SEQCTRL = (1<<8) | (1<<9) | (1<<10) | (1<<11);
-        ADC1_REGS->ADC_SWTRIG = 1;
-        while(ADC1_REGS->ADC_SEQSTATUS & 0x80);
+//        ADC0_REGS->ADC_SEQCTRL = (1<<8) | (1<<9) | (1<<10) | (1<<11);
+        ADC0_REGS->ADC_SWTRIG = 1;
+        while(ADC0_REGS->ADC_SEQSTATUS & 0x80);
         //_nop();
     }
 }
@@ -90,6 +90,7 @@ void HardFault_Handler() {
 void ADC0_Handler() {
     if(ADC0_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY(1)) {
         ADC0_REGS->ADC_INTFLAG = ADC_INTFLAG_RESRDY(1);
+        adc_result[(ADC0_REGS->ADC_SEQSTATUS) & 0x1F] = ADC0_REGS->ADC_RESULT;
     }
     
     if(ADC0_REGS->ADC_INTFLAG & ADC_INTFLAG_OVERRUN(1)) {
@@ -100,7 +101,6 @@ void ADC0_Handler() {
 void ADC1_Handler() {
     if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY(1)) {
         ADC1_REGS->ADC_INTFLAG = ADC_INTFLAG_RESRDY(1);
-        adc_result[(ADC1_REGS->ADC_SEQSTATUS) & 0x1F] = ADC1_REGS->ADC_RESULT;
     }
     
     if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_OVERRUN(1)) {
