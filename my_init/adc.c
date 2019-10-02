@@ -129,18 +129,7 @@ void ADC_init(void) {
     
     // configure automatic sequencing
     // sequential measurement for AIN 8, 9, 10, 11
-    ADC1_REGS->ADC_SEQCTRL = 0xFFFFFFFF;
-//        ADC_SEQCTRL_SEQEN(
-//        (1 <<  0) |
-//        (1 <<  1) |
-//        (1 <<  2) |
-//        (1 <<  4) |
-//        (1 <<  5) |
-//        (1 <<  6) |
-//        (1 <<  7) |
-//        (1 <<  8) |
-//        (1 << 10) |
-//        (1 << 11));
+    ADC1_REGS->ADC_SEQCTRL = (1<<8) | (1<<9) | (1<<10) | (1<<11);
         
     // enable interrupts for result
     ADC0_REGS->ADC_INTENSET = 

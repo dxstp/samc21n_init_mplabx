@@ -65,8 +65,10 @@ int main(void) {
         temp = getInternalTemperatureFiltered();
 		printf("TSENS Temperature: %d\r\n", temp);
         
+        ADC1_REGS->ADC_SEQCTRL = (1<<8) | (1<<9) | (1<<10) | (1<<11);
         ADC1_REGS->ADC_SWTRIG = 1;
         while(ADC1_REGS->ADC_SEQSTATUS & 0x80);
+        //_nop();
     }
 }
 
