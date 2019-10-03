@@ -68,14 +68,20 @@ int main(void) {
         temp = getInternalTemperatureFiltered();
 		printf("TSENS Temperature: %d\r\n", temp);
         
-       
-        
         printf("%04x %04x %04x %04x\r\n", adc_result[8], adc_result[9], adc_result[10], adc_result[11]);
-
-//        ADC0_REGS->ADC_SEQCTRL = (1<<8) | (1<<9) | (1<<10) | (1<<11);
+        
+        // trigger AD conversion by software
         ADC0_REGS->ADC_SWTRIG = 1;
-        while(ADC0_REGS->ADC_SEQSTATUS & 0x80);
-        //_nop();
+        // wait until trigger is synchronised
+        while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_SWTRIG(1));
+        // wait until trigger gets cleared by hardware
+        // gets cleared if conversion has been started
+        while(ADC0_REGS->ADC_SWTRIG & ADC_SWTRIG_START(1));
+        // wait until SEQBUSY gets cleared by hardware
+        // gets cleared if last conversion is done
+        while(ADC0_REGS->ADC_SEQSTATUS & ADC_SEQSTATUS_SEQBUSY(1));
+        // nop for debugging breakpoint
+        _nop();
     }
 }
 
