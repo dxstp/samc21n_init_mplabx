@@ -22,24 +22,9 @@
     SOFTWARE.
  */
 // DOM-IGNORE-END
+#ifndef EVSYS_H
+#define	EVSYS_H
 
-#include <sam.h>
-#include "nvic.h"
+void EVSYS_init(void);
 
-void NVIC_init(void) {	
-	NVIC_SetPriority(SUPC_IRQn, 0);
-	NVIC_EnableIRQ(SUPC_IRQn);
-	
-	NVIC_SetPriority(TSENS_IRQn, 3);
-	NVIC_EnableIRQ(TSENS_IRQn);	
-    
-    NVIC_SetPriority(ADC0_IRQn, 3);
-	NVIC_EnableIRQ(ADC0_IRQn);	
-    
-    NVIC_SetPriority(ADC1_IRQn, 3);
-	NVIC_EnableIRQ(ADC1_IRQn);	
-    
-    NVIC_SetPriority(DMAC_IRQn, 3);
-	NVIC_EnableIRQ(DMAC_IRQn);	
-
-}
+#endif	/* EVSYS_H */

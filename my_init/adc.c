@@ -23,8 +23,7 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
-#include <proc/SAMC21/component/adc.h>
+#include <xc.h>
 #include "adc.h"
 
 // missing in header files
@@ -83,16 +82,16 @@ void ADC_init(void) {
         ADC_REFCTRL_REFSEL(ADC_REFCTRL_REFSEL_INTREF_Val);
     
     // configure negative ADC input
-    // differential measurement between AIN 2 and 3
+    // differential measurement between AIN 4 and 5
     ADC0_REGS->ADC_INPUTCTRL =
-        ADC_INPUTCTRL_MUXNEG(ADC_INPUTCTRL_MUXNEG_AIN4_Val) |
-        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN5_Val);
+        ADC_INPUTCTRL_MUXNEG(0x18) |
+        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN8);
     while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_INPUTCTRL(1));
     // single-ended measurement
     // 0x18 = internal ground
     ADC1_REGS->ADC_INPUTCTRL =
-        ADC_INPUTCTRL_MUXNEG(0x18) |
-        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN8);
+        ADC_INPUTCTRL_MUXNEG(ADC_INPUTCTRL_MUXNEG_AIN4_Val) |
+        ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN5_Val);
     while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_INPUTCTRL(1));
     
     // configure ADC mode
@@ -133,12 +132,16 @@ void ADC_init(void) {
         
     // enable interrupts for result
     ADC0_REGS->ADC_INTENSET = 
-        ADC_INTENSET_RESRDY(1) |
         ADC_INTENSET_OVERRUN(1);
     ADC1_REGS->ADC_INTENSET = 
-        ADC_INTENSET_RESRDY(1) |
         ADC_INTENSET_OVERRUN(1);
 
+    // end of single measurement on ADC1 will start sequence on ADC0
+    // activate ADC1 RESRDY event output
+    ADC1_REGS->ADC_EVCTRL = ADC_EVCTRL_RESRDYEO(1);
+    // activate ADC0 START event input
+    ADC0_REGS->ADC_EVCTRL = ADC_EVCTRL_STARTEI(1);
+    
     // enable ADC0 and ADC1
     ADC0_REGS->ADC_CTRLA = ADC_CTRLA_ENABLE(1);
 	while (ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_ENABLE(1));

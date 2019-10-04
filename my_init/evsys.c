@@ -23,23 +23,30 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
-#include "nvic.h"
+#include <xc.h>
 
-void NVIC_init(void) {	
-	NVIC_SetPriority(SUPC_IRQn, 0);
-	NVIC_EnableIRQ(SUPC_IRQn);
-	
-	NVIC_SetPriority(TSENS_IRQn, 3);
-	NVIC_EnableIRQ(TSENS_IRQn);	
+// missing header symbols
+#define EVSYS_GCLK_ID_0             6
+#define EVSYS_GCLK_ID_1             7
     
-    NVIC_SetPriority(ADC0_IRQn, 3);
-	NVIC_EnableIRQ(ADC0_IRQn);	
+void EVSYS_init(void) {
+    // connect clocks to EVSYS
+    MCLK_REGS->MCLK_APBCMASK |= MCLK_APBCMASK_EVSYS(1);
     
-    NVIC_SetPriority(ADC1_IRQn, 3);
-	NVIC_EnableIRQ(ADC1_IRQn);	
+    // connect event channel 0 to GCLK0
+    GCLK_REGS->GCLK_PCHCTRL[EVSYS_GCLK_ID_0] = GCLK_PCHCTRL_GEN_GCLK0 | GCLK_PCHCTRL_CHEN(1);
     
-    NVIC_SetPriority(DMAC_IRQn, 3);
-	NVIC_EnableIRQ(DMAC_IRQn);	
-
+    // trigger a software reset (no sync necessary)
+    EVSYS_REGS->EVSYS_CTRLA = EVSYS_CTRLA_SWRST(1);
+    while(EVSYS_REGS->EVSYS_CTRLA & EVSYS_CTRLA_SWRST(1));
+    
+    // setup channel 0, generator ADC1 RESRDY
+    EVSYS_REGS->EVSYS_CHANNEL[0] = 
+        EVSYS_CHANNEL_PATH(EVSYS_CHANNEL_PATH_RESYNCHRONIZED_Val) |
+        EVSYS_CHANNEL_EDGSEL(EVSYS_CHANNEL_EDGSEL_RISING_EDGE_Val) |
+        EVSYS_CHANNEL_EVGEN(0x45);
+    
+    // setup user ADC0 for channel 0
+    EVSYS_REGS->EVSYS_USER[28] = 0x01;
+    
 }

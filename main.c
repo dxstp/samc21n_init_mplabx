@@ -35,12 +35,13 @@
 #include "my_init/tsens.h"
 #include "my_init/sercom.h"
 #include "my_init/adc.h"
+#include "my_init/dmac.h"
+#include "my_init/evsys.h"
 #include "my_init/dsu.h"
 #include "utils/print.h"
 #include "utils/delay.h"
 
 int32_t temp;
-volatile uint16_t adc_result[32];
 
 int main(void) {
 	SUPC_init();
@@ -53,12 +54,14 @@ int main(void) {
 	TSENS_init();
 	SERCOM4_init();
     ADC_init();
+    DMAC_init();
+    EVSYS_init();
 	print_init();
     DSU_init();
 	
 	printf("Hello C21N World!\r\n");
     
-    for (int i = 0; i < 32; i++)
+    for (int i = 0; i < 5; i++)
         adc_result[i] = 0x1234;
     
     while (1) {	
@@ -68,20 +71,16 @@ int main(void) {
         temp = getInternalTemperatureFiltered();
 		printf("TSENS Temperature: %d\r\n", temp);
         
-        printf("%04x %04x %04x %04x\r\n", adc_result[8], adc_result[9], adc_result[10], adc_result[11]);
+        printf("%04x %04x %04x %04x %04x\r\n", adc_result[0], adc_result[1], adc_result[2], adc_result[3],  adc_result[4]);
         
         // trigger AD conversion by software
-        ADC0_REGS->ADC_SWTRIG = 1;
+        ADC1_REGS->ADC_SWTRIG = 1;
         // wait until trigger is synchronised
-        while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_SWTRIG(1));
+        while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_SWTRIG(1));
         // wait until trigger gets cleared by hardware
         // gets cleared if conversion has been started
-        while(ADC0_REGS->ADC_SWTRIG & ADC_SWTRIG_START(1));
-        // wait until SEQBUSY gets cleared by hardware
-        // gets cleared if last conversion is done
-        while(ADC0_REGS->ADC_SEQSTATUS & ADC_SEQSTATUS_SEQBUSY(1));
-        // nop for debugging breakpoint
-        _nop();
+        while(ADC1_REGS->ADC_SWTRIG & ADC_SWTRIG_START(1));
+
     }
 }
 
@@ -94,22 +93,17 @@ void HardFault_Handler() {
 }
 
 void ADC0_Handler() {
-    if(ADC0_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY(1)) {
-        ADC0_REGS->ADC_INTFLAG = ADC_INTFLAG_RESRDY(1);
-        adc_result[(ADC0_REGS->ADC_SEQSTATUS) & 0x1F] = ADC0_REGS->ADC_RESULT;
-    }
-    
     if(ADC0_REGS->ADC_INTFLAG & ADC_INTFLAG_OVERRUN(1)) {
         ADC0_REGS->ADC_INTFLAG = ADC_INTFLAG_OVERRUN(1);
     }
 }   
 
 void ADC1_Handler() {
-    if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY(1)) {
-        ADC1_REGS->ADC_INTFLAG = ADC_INTFLAG_RESRDY(1);
-    }
-    
     if(ADC1_REGS->ADC_INTFLAG & ADC_INTFLAG_OVERRUN(1)) {
         ADC1_REGS->ADC_INTFLAG = ADC_INTFLAG_OVERRUN(1);
     }
+}
+
+void DMAC_Handler() {
+_nop();
 }

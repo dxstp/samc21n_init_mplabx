@@ -16,6 +16,8 @@
         <itemPath>my_init/tsens.h</itemPath>
         <itemPath>my_init/adc.h</itemPath>
         <itemPath>my_init/dsu.h</itemPath>
+        <itemPath>my_init/evsys.h</itemPath>
+        <itemPath>my_init/dmac.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="utils" projectFiles="true">
         <itemPath>utils/print.h</itemPath>
@@ -42,6 +44,8 @@
         <itemPath>my_init/tsens.c</itemPath>
         <itemPath>my_init/adc.c</itemPath>
         <itemPath>my_init/dsu.c</itemPath>
+        <itemPath>my_init/evsys.c</itemPath>
+        <itemPath>my_init/dmac.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="utils" projectFiles="true">
         <itemPath>utils/print.c</itemPath>
