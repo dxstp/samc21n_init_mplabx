@@ -81,14 +81,15 @@ void ADC_init(void) {
         ADC_REFCTRL_REFCOMP(1) |
         ADC_REFCTRL_REFSEL(ADC_REFCTRL_REFSEL_INTREF_Val);
     
-    // configure negative ADC input
-    // differential measurement between AIN 4 and 5
+    // configure ADC inputs
+    // single-ended measurement
+    // 0x18 = internal ground
     ADC0_REGS->ADC_INPUTCTRL =
         ADC_INPUTCTRL_MUXNEG(0x18) |
         ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN8);
     while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_INPUTCTRL(1));
-    // single-ended measurement
-    // 0x18 = internal ground
+    
+    // differential measurement between AIN 4 and 5
     ADC1_REGS->ADC_INPUTCTRL =
         ADC_INPUTCTRL_MUXNEG(ADC_INPUTCTRL_MUXNEG_AIN4_Val) |
         ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN5_Val);
@@ -119,11 +120,13 @@ void ADC_init(void) {
     // configure averaging
     ADC0_REGS->ADC_AVGCTRL =
         ADC_AVGCTRL_ADJRES(0) |
-        ADC_AVGCTRL_SAMPLENUM(ADC_AVGCTRL_SAMPLENUM_1);
+        ADC_AVGCTRL_SAMPLENUM(ADC_AVGCTRL_SAMPLENUM_1_Val);
     while(ADC0_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_AVGCTRL(1));
+    // oversample differential measurement by 256 to get 4 more bits
+    // result is 15 bits wide (one bit for sign)
     ADC1_REGS->ADC_AVGCTRL =
         ADC_AVGCTRL_ADJRES(0) |
-        ADC_AVGCTRL_SAMPLENUM(ADC_AVGCTRL_SAMPLENUM_1);
+        ADC_AVGCTRL_SAMPLENUM(ADC_AVGCTRL_SAMPLENUM_256_Val);
     while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_AVGCTRL(1));
     
     // configure automatic sequencing
