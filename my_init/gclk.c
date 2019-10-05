@@ -43,10 +43,10 @@ void GCLK_init(void) {
 		| GCLK_GENCTRL_OE(1)
 		| GCLK_GENCTRL_DIV(1000);
     
-    //8 MHz for ADC clock
+    //16 MHz for ADC clock
     GCLK_REGS->GCLK_GENCTRL[2] =
 		GCLK_GENCTRL_GENEN(1)
 		| GCLK_GENCTRL_SRC_OSC48M
 		| GCLK_GENCTRL_OE(1)
-		| GCLK_GENCTRL_DIV(6);
+		| GCLK_GENCTRL_DIV(3);
 }
