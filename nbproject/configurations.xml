@@ -23,6 +23,7 @@
         <itemPath>utils/print.h</itemPath>
         <itemPath>utils/delay.h</itemPath>
       </logicalFolder>
+      <itemPath>my_init/sdadc.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -46,6 +47,7 @@
         <itemPath>my_init/dsu.c</itemPath>
         <itemPath>my_init/evsys.c</itemPath>
         <itemPath>my_init/dmac.c</itemPath>
+        <itemPath>my_init/sdadc.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="utils" projectFiles="true">
         <itemPath>utils/print.c</itemPath>

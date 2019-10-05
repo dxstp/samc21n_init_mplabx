@@ -23,29 +23,11 @@
  */
 // DOM-IGNORE-END
 
-#include <sam.h>
-#include "nvic.h"
 
-void NVIC_init(void) {	
-	NVIC_SetPriority(SUPC_IRQn, 0);
-	NVIC_EnableIRQ(SUPC_IRQn);
-    
-    NVIC_SetPriority(EVSYS_IRQn, 3);
-	NVIC_EnableIRQ(EVSYS_IRQn);
-	
-	NVIC_SetPriority(TSENS_IRQn, 3);
-	NVIC_EnableIRQ(TSENS_IRQn);	
-    
-    NVIC_SetPriority(SDADC_IRQn, 3);
-	NVIC_EnableIRQ(SDADC_IRQn);	
-    
-    NVIC_SetPriority(ADC0_IRQn, 3);
-	NVIC_EnableIRQ(ADC0_IRQn);	
-    
-    NVIC_SetPriority(ADC1_IRQn, 3);
-	NVIC_EnableIRQ(ADC1_IRQn);	
-    
-    NVIC_SetPriority(DMAC_IRQn, 3);
-	NVIC_EnableIRQ(DMAC_IRQn);	
+#ifndef SDADC_H
+#define	SDADC_H
 
-}
+void SDADC_init(void);
+
+#endif	/* SDADC_H */
+

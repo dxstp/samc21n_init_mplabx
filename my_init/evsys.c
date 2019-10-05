@@ -24,6 +24,7 @@
 // DOM-IGNORE-END
 
 #include <xc.h>
+#include <proc/SAMC21/component/evsys.h>
 
 // missing header symbols
 #define EVSYS_GCLK_ID_0             6
@@ -40,13 +41,22 @@ void EVSYS_init(void) {
     EVSYS_REGS->EVSYS_CTRLA = EVSYS_CTRLA_SWRST(1);
     while(EVSYS_REGS->EVSYS_CTRLA & EVSYS_CTRLA_SWRST(1));
     
-    // setup channel 0, generator ADC1 RESRDY
+    // setup channel 0, generator SDADC RESRDY
     EVSYS_REGS->EVSYS_CHANNEL[0] = 
-        EVSYS_CHANNEL_PATH(EVSYS_CHANNEL_PATH_RESYNCHRONIZED_Val) |
-        EVSYS_CHANNEL_EDGSEL(EVSYS_CHANNEL_EDGSEL_RISING_EDGE_Val) |
+        EVSYS_CHANNEL_PATH(EVSYS_CHANNEL_PATH_ASYNCHRONOUS_Val) |
+        EVSYS_CHANNEL_EDGSEL(EVSYS_CHANNEL_EDGSEL_NO_EVT_OUTPUT_Val) |
+        EVSYS_CHANNEL_EVGEN(0x47);
+    
+    // setup user ADC1 for channel 0
+    EVSYS_REGS->EVSYS_USER[30] = 0x01;
+    
+    // setup channel 1, generator ADC1 RESRDY
+    EVSYS_REGS->EVSYS_CHANNEL[1] = 
+        EVSYS_CHANNEL_PATH(EVSYS_CHANNEL_PATH_ASYNCHRONOUS_Val) |
+        EVSYS_CHANNEL_EDGSEL(EVSYS_CHANNEL_EDGSEL_NO_EVT_OUTPUT_Val) |
         EVSYS_CHANNEL_EVGEN(0x45);
     
-    // setup user ADC0 for channel 0
-    EVSYS_REGS->EVSYS_USER[28] = 0x01;
-    
+    // setup user ADC0 for channel 1
+    EVSYS_REGS->EVSYS_USER[28] = 0x02;
+        
 }

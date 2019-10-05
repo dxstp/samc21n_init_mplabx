@@ -35,6 +35,7 @@
 #include "my_init/tsens.h"
 #include "my_init/sercom.h"
 #include "my_init/adc.h"
+#include "my_init/sdadc.h"
 #include "my_init/dmac.h"
 #include "my_init/evsys.h"
 #include "my_init/dsu.h"
@@ -54,6 +55,7 @@ int main(void) {
 	TSENS_init();
 	SERCOM4_init();
     ADC_init();
+    SDADC_init();
     DMAC_init();
     EVSYS_init();
 	print_init();
@@ -71,15 +73,20 @@ int main(void) {
         temp = getInternalTemperatureFiltered();
 		printf("TSENS Temperature: %d\r\n", temp);
         
-        printf("%04x %04x %04x %04x %04x\r\n", adc_result[0], adc_result[1], adc_result[2], adc_result[3],  adc_result[4]);
+        printf("SDADC 0-1 %04x\r\n", adc_result[0]);
+        printf("ADC   0-1 %04x\r\n", adc_result[1]);
+        printf("ADC     2 %04x\r\n", adc_result[2]);
+        printf("ADC     3 %04x\r\n", adc_result[3]);
+        printf("ADC     4 %04x\r\n", adc_result[4]);
+        printf("ADC     5 %04x\r\n", adc_result[5]);
         
         // trigger AD conversion by software
-        ADC1_REGS->ADC_SWTRIG = 1;
+        SDADC_REGS->SDADC_SWTRIG = SDADC_SWTRIG_START(1);
         // wait until trigger is synchronised
-        while(ADC1_REGS->ADC_SYNCBUSY & ADC_SYNCBUSY_SWTRIG(1));
+        while(SDADC_REGS->SDADC_SYNCBUSY & SDADC_SYNCBUSY_SWTRIG(1));
         // wait until trigger gets cleared by hardware
         // gets cleared if conversion has been started
-        while(ADC1_REGS->ADC_SWTRIG & ADC_SWTRIG_START(1));
+        while(SDADC_REGS->SDADC_SWTRIG & SDADC_SWTRIG_START(1));
 
     }
 }
@@ -90,6 +97,12 @@ void SYSTEM_Handler() {
 
 void HardFault_Handler() {
     while(1);
+}
+
+void SDADC_Handler() {
+    if(SDADC_REGS->SDADC_INTFLAG & SDADC_INTFLAG_OVERRUN(1)) {
+        SDADC_REGS->SDADC_INTFLAG = SDADC_INTFLAG_OVERRUN(1);
+    }
 }
 
 void ADC0_Handler() {
@@ -105,5 +118,9 @@ void ADC1_Handler() {
 }
 
 void DMAC_Handler() {
-_nop();
+    _nop();
+}
+
+void EVSYS_Handler() {
+    _nop();
 }

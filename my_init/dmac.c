@@ -87,7 +87,7 @@ static void DMAC_init_channels() {
         DMAC_CHCTRLB_TRIGSRC(DMAC_CHCTRLB_TRIGSRC_ADC0_RESRDY_Val) |
         DMAC_CHCTRLB_TRIGACT(DMAC_CHCTRLB_TRIGACT_BEAT_Val) |
         DMAC_CHCTRLB_LVL(DMAC_CHCTRLB_LVL_LVL3_Val);
-    DMAC_REGS->DMAC_CHINTENSET = DMAC_CHINTENCLR_TERR(1);
+    DMAC_REGS->DMAC_CHINTENSET = DMAC_CHINTENSET_TERR(1);
     DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
     
     
@@ -98,7 +98,17 @@ static void DMAC_init_channels() {
         DMAC_CHCTRLB_TRIGSRC(DMAC_CHCTRLB_TRIGSRC_ADC1_RESRDY_Val) |
         DMAC_CHCTRLB_TRIGACT(DMAC_CHCTRLB_TRIGACT_BEAT_Val) |
         DMAC_CHCTRLB_LVL(DMAC_CHCTRLB_LVL_LVL3_Val);
-    DMAC_REGS->DMAC_CHINTENSET = DMAC_CHINTENCLR_TERR(1);
+    DMAC_REGS->DMAC_CHINTENSET = DMAC_CHINTENSET_TERR(1);
+    DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
+    
+    // configure channel 2
+    // trigger a beat on SDADC RESRDY
+    DMAC_REGS->DMAC_CHID = 2;
+    DMAC_REGS->DMAC_CHCTRLB = 
+        DMAC_CHCTRLB_TRIGSRC(DMAC_CHCTRLB_TRIGSRC_SDADC_RESRDY_Val) |
+        DMAC_CHCTRLB_TRIGACT(DMAC_CHCTRLB_TRIGACT_BEAT_Val) |
+        DMAC_CHCTRLB_LVL(DMAC_CHCTRLB_LVL_LVL3_Val);
+    DMAC_REGS->DMAC_CHINTENSET = DMAC_CHINTENSET_TERR(1);
     DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
 
 }
@@ -123,9 +133,9 @@ static void DMAC_init_descriptors() {
     // source address is ADC0 result register
     DMAC_descriptor[0].DMAC_SRCADDR = (uint32_t) (&(ADC0_REGS->ADC_RESULT));
     // destination address is an array in RAM
-    DMAC_descriptor[0].DMAC_DSTADDR = (uint32_t) (adc_result+5);
-    // no link to next descriptor
-    DMAC_descriptor[0].DMAC_DESCADDR = 0;
+    DMAC_descriptor[0].DMAC_DSTADDR = (uint32_t) (adc_result+6);
+    // repeat ad infinitum
+    DMAC_descriptor[0].DMAC_DESCADDR = (uint32_t) (&DMAC_descriptor[0]);
         
     // initialize descriptor for channel 1
     // to copy ADC results to RAM, we need word sized beats
@@ -146,7 +156,30 @@ static void DMAC_init_descriptors() {
     // source address is ADC1 result register
     DMAC_descriptor[1].DMAC_SRCADDR = (uint32_t) (&(ADC1_REGS->ADC_RESULT));
     // destination address is an array in RAM
-    DMAC_descriptor[1].DMAC_DSTADDR = (uint32_t) (adc_result+1);
-    // no link to next descriptor
-    DMAC_descriptor[1].DMAC_DESCADDR = 0;
+    DMAC_descriptor[1].DMAC_DSTADDR = (uint32_t) (adc_result+2);
+    // repeat ad infinitum
+    DMAC_descriptor[1].DMAC_DESCADDR = (uint32_t) (&DMAC_descriptor[1]);
+    
+    // initialize descriptor for channel 2
+    // to copy ADC results to RAM, we need word sized beats
+    // destination address has to be increased
+    // source address (=ADC result register) remains constant
+    // after completion, channel will be disabled
+    DMAC_descriptor[2].DMAC_BTCTRL =
+        DMAC_BTCTRL_STEPSIZE(DMAC_BTCTRL_STEPSIZE_X1_Val) |
+        DMAC_BTCTRL_STEPSEL(DMAC_BTCTRL_STEPSEL_DST_Val) |
+        DMAC_BTCTRL_DSTINC(1) |
+        DMAC_BTCTRL_SRCINC(0) |
+        DMAC_BTCTRL_BEATSIZE(DMAC_BTCTRL_BEATSIZE_HWORD_Val) |
+        DMAC_BTCTRL_BLOCKACT(DMAC_BTCTRL_BLOCKACT_NOACT_Val) |
+        DMAC_BTCTRL_EVOSEL(DMAC_BTCTRL_EVOSEL_DISABLE_Val) |
+        DMAC_BTCTRL_VALID(1);
+    // we have 1 AD channel to store, then cycle repeats
+    DMAC_descriptor[2].DMAC_BTCNT = 1;
+    // source address is ADC1 result register
+    DMAC_descriptor[2].DMAC_SRCADDR = (uint32_t) (&(SDADC_REGS->SDADC_RESULT));
+    // destination address is an array in RAM
+    DMAC_descriptor[2].DMAC_DSTADDR = (uint32_t) (adc_result+1);
+    // repeat ad infinitum
+    DMAC_descriptor[2].DMAC_DESCADDR = (uint32_t) (&DMAC_descriptor[2]);
 }

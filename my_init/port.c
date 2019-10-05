@@ -79,7 +79,7 @@ void PORT_init(void) {
 		| ((1 << 7) & 0xffff);
     
     // enable analog inputs
-    // PB09 -> AIN5, ADC1
+    // PB09 -> AIN5, ADC1 and also INP[1], SDADC
     // Xplained Pro: J803, A0
     PORT_REGS->GROUP[GPIO_PORTB].PORT_WRCONFIG =
           PORT_WRCONFIG_PMUX(MUX_PB09B_ADC1_AIN5)
@@ -88,7 +88,7 @@ void PORT_init(void) {
 		| PORT_WRCONFIG_WRPINCFG(1)
 		| ((1 << 9) & 0xffff);
     
-    // PB08 -> AIN4, ADC1
+    // PB08 -> AIN4, ADC1 and also INN[1], SDADC
     // Xplained Pro: J803, A1
     PORT_REGS->GROUP[GPIO_PORTB].PORT_WRCONFIG =
           PORT_WRCONFIG_PMUX(MUX_PB08B_ADC1_AIN4)

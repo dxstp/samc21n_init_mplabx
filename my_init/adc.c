@@ -139,9 +139,11 @@ void ADC_init(void) {
     ADC1_REGS->ADC_INTENSET = 
         ADC_INTENSET_OVERRUN(1);
 
+    // end of SDADC measurement will start ADC1
     // end of single measurement on ADC1 will start sequence on ADC0
-    // activate ADC1 RESRDY event output
-    ADC1_REGS->ADC_EVCTRL = ADC_EVCTRL_RESRDYEO(1);
+    ADC1_REGS->ADC_EVCTRL = 
+        ADC_EVCTRL_RESRDYEO(1) |
+        ADC_EVCTRL_STARTEI(1);
     // activate ADC0 START event input
     ADC0_REGS->ADC_EVCTRL = ADC_EVCTRL_STARTEI(1);
     
